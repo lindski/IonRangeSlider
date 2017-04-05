@@ -250,6 +250,18 @@ define([
                 }
             } 
 
+            if( this.applyFromMovementLimit ){
+                options.from_min = this.fromMinimum ? obj.get(this.fromMinimum) : this.fromMinimumDefault;
+                options.from_max = this.fromMaximum ? obj.get(this.fromMaximum) : this.fromMaximumDefault;
+                options.from_shadow = this.fromShadow;
+            }
+
+            if( this.applyToMovementLimit ){
+                options.to_min = this.toMinimum ? obj.get(this.toMinimum) : this.toMinimumDefault;
+                options.to_max = this.toMaximum ? obj.get(this.toMaximum) : this.toMaximumDefault;
+                options.to_shadow = this.toShadow;
+            }
+
             options.onFinish = function (data) {
                 var currentFrom = obj.get(self.from);
                 if( data.from != currentFrom){
@@ -294,7 +306,7 @@ define([
                     },
                     callback: function (objs) {
                         if (cb) {
-                            cb(objs);
+                            cb(objs); 
                         }
                     },
                     error: function (e) {
