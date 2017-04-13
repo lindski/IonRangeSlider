@@ -1,3 +1,20 @@
+/*global logger*/
+/*
+    IonRangeSlider
+    ========================
+
+    @file      : IonRangeSlider.js
+    @version   : 1.0.0
+    @author    : Iain Lindsay
+    @date      : 2017-04-12
+    @copyright : AuraQ Limited 2016
+    @license   : Apache v2
+
+    Documentation
+    ========================
+    This widget is a wrapper for the Ion Range Slider
+    http://ionden.com/a/plugins/ion.rangeSlider/en.html
+*/
 define([
     "dojo/_base/declare",
     "mxui/widget/_WidgetBase",
@@ -27,7 +44,6 @@ define([
 
         templateString: widgetTemplate,
 
-
         widgetBase: null,
 
         // Internal variables.
@@ -35,13 +51,13 @@ define([
         _contextObj: null,
         _isValid : null,
         _sortParams: null,
-        _valueReference : null,
         _fromReference : null,
         _fromEntity : null,
         _toReference : null,
         _toEntity : null,
         _$input : null,
         _slider : null,
+        _valueGuids : null,
 
         constructor: function () {
             this._handles = [];
@@ -177,56 +193,109 @@ define([
 
             if (this._contextObj !== null && this._isValid) {
                 dojoStyle.set(this.domNode, "display", "block");
+                this._updateSliderVisibility();
 
-                var options = this._getSliderOptions(this._contextObj);
-                
-                if(this.dataSource === "attribute"){       
+                if(this.dataSource === "attribute"){
+                    var options = this._getAttributeSliderOptions(this._contextObj);
                     if( !this._slider){
                         this._$input.ionRangeSlider(options);
                         this._slider = this._$input.data("ionRangeSlider");
                     }
                     else{
                         this._slider.update(options);
-                    }                    
+                    }
+
+                    mendix.lang.nullExec(callback);
+
                 } else if(this.dataSource === "association"){
-                    console.log("Association source not implemented.")
-                    /*var values = objs.map(function(obj){
-                            return obj.get(self.valueAttribute);
-                        })
-
-                        var options = self._getSliderOptions(self._contextObj);
-                        options.values = values;
-
-                        self._$input.ionRangeSlider(options);*/
+                    this._loadSliderValues(callback);
                 }
-
-                this._updateSliderVisibility();
-
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
-            }            
-
-            mendix.lang.nullExec(callback);
+                mendix.lang.nullExec(callback);
+            } 
         },
 
-        _getSliderOptions : function(obj){
-            var self = this;
-            var options = {};
-            options.type = this.sliderType;
+        _getAttributeSliderOptions : function(obj){
+            var options = this._getCommonSliderOptions();
             options.min = this.min ? obj.get(this.min) : this.minDefault;
             options.max = this.max ? obj.get(this.max) : this.maxDefault;
             if( this.from ){
                 options.from = obj.get(this.from);
             }
 
-            if( this.to ){
+            if( this.sliderType === "double"){
                 options.to = obj.get(this.to);
-            }            
-
-            options.grid = this.showGrid;
+            }
             
-            options.step = this.step ? obj.get(this.step) : this.stepDefault;
+            options.step = this.step ? obj.get(this.step) : this.stepDefault;            
 
+            if( this.applyFromMovementLimit ){
+                options.from_min = this.fromMinimum ? obj.get(this.fromMinimum) : this.fromMinimumDefault;
+                options.from_max = this.fromMaximum ? obj.get(this.fromMaximum) : this.fromMaximumDefault;
+                options.from_shadow = this.fromShadow;
+            }
+
+            if( this.applyToMovementLimit ){
+                options.to_min = this.toMinimum ? obj.get(this.toMinimum) : this.toMinimumDefault;
+                options.to_max = this.toMaximum ? obj.get(this.toMaximum) : this.toMaximumDefault;
+                options.to_shadow = this.toShadow;
+            }
+
+            var self = this;
+            options.onFinish = function (data) {
+                var currentFrom = obj.get(self.from);
+                if( data.from != currentFrom){
+                    obj.set(self.from, data.from);
+                }
+                
+                if( self.sliderType === "double"){
+                    var currentTo = obj.get(self.to);
+                    if( data.to != currentTo){
+                        obj.set(self.to, data.to);
+                    }
+                }                
+            }
+            
+            return options;
+        }, 
+
+        _getAssociationSliderOptions : function(obj){
+            var options = this._getCommonSliderOptions();
+            
+            var from = this._valueGuids.indexOf(obj.get(this._fromReference));
+            if( from >= 0 ){
+                options.from = from;
+            }
+            
+            var to = this._valueGuids.indexOf(obj.get(this._toReference));
+            if( to >= 0 ){
+                options.to = to;
+            }
+
+            var self = this;
+            options.onFinish = function (data) {
+                var currentFrom = self._valueGuids.indexOf(obj.get(self._fromReference));
+                if( data.from != currentFrom){
+                    obj.addReference(self._fromReference,self._valueGuids[data.from]);
+                }
+
+                if( self.sliderType === "double"){
+                    var currentTo = self._valueGuids.indexOf(obj.get(self._toReference));
+                    if( data.to != currentTo){
+                        obj.addReference(self._toReference,self._valueGuids[data.to]);
+                    }
+                }             
+            }
+            
+            return options;
+        },   
+
+        _getCommonSliderOptions : function(obj){
+            var options = {};
+            options.type = this.sliderType;
+            options.grid = this.showGrid;            
+                        
             if( this.prefix ){
                 options.prefix = this.prefix;
             }
@@ -241,6 +310,7 @@ define([
             } else{
                 options.disable = false;
             }
+
             // attribute property beats fixed property    
             if(this.disabledViaAttribute){
                 if(this._contextObj.get(this.disabledViaAttribute) ){
@@ -248,52 +318,51 @@ define([
                 } else{
                     options.disable = false;
                 }
-            } 
-
-            if( this.applyFromMovementLimit ){
-                options.from_min = this.fromMinimum ? obj.get(this.fromMinimum) : this.fromMinimumDefault;
-                options.from_max = this.fromMaximum ? obj.get(this.fromMaximum) : this.fromMaximumDefault;
-                options.from_shadow = this.fromShadow;
-            }
-
-            if( this.applyToMovementLimit ){
-                options.to_min = this.toMinimum ? obj.get(this.toMinimum) : this.toMinimumDefault;
-                options.to_max = this.toMaximum ? obj.get(this.toMaximum) : this.toMaximumDefault;
-                options.to_shadow = this.toShadow;
-            }
-
-            options.onFinish = function (data) {
-                var currentFrom = obj.get(self.from);
-                if( data.from != currentFrom){
-                    obj.set(self.from, data.from);
-                }
-                
-                if( self.to ){                                
-                    var currentTo = obj.get(self.to);
-                    if( data.to != currentTo){
-                        obj.set(self.to, data.to);
-                    }
-                }                
             }
             
             return options;
         },  
         
         // retrieves the data from the entity, applying the required constraint
-        _loadSliderValues: function () {            
-            // Important to clear all validations!
-            this._clearValidations();
-            
+        _loadSliderValues: function (callback) {            
             // reset our data
-            var xpath = '//' + this._entity + this.dataConstraint.replace('[%CurrentObject%]', this._contextObj.getGuid());
+            var xpath = '//' + this.valueEntity + this.valueConstraint.replace('[%CurrentObject%]', this._contextObj.getGuid());
             mx.data.get({
                 xpath: xpath,
                 filter: {
                     sort: this._sortParams,
                     offset: 0
                 },
-                callback: dojoLang.hitch(this, this._processComboData)
+                callback: dojoLang.hitch(this, function(objs){
+                    this._processSliderValues(objs, callback);
+                })
             });
+        },
+        
+        // retrieves the data from the entity, applying the required constraint
+        _processSliderValues: function (objs, callback) {
+            this._valueGuids = [];
+            var values = [];
+
+            for(var i = 0; i < objs.length; i++){
+                var obj = objs[i];
+                var value = obj.get(this.valueAttribute);
+                values.push(value);
+                this._valueGuids.push(obj.getGuid());
+            }
+
+            var options = this._getAssociationSliderOptions(this._contextObj);
+            options.values = values;
+            
+            if( !this._slider){
+                this._$input.ionRangeSlider(options);
+                this._slider = this._$input.data("ionRangeSlider");
+            }
+            else{
+                this._slider.update(options);
+            }
+            
+            mendix.lang.nullExec(callback);
         },    
 
         _execMf: function (guid, mf, cb) {
@@ -368,7 +437,13 @@ define([
                         guid: this._contextObj.getGuid(),
                         attr: this._fromReference,
                         callback: dojoLang.hitch(this, function(guid, attr, attrValue) {
-                            this._updateRendering();
+                            var options = {};
+                            var from = this._valueGuids.indexOf(this._contextObj.get(this._fromReference));
+                            if( from >= 0 ){
+                                options.from = from;
+                            }
+
+                            this._slider.update(options);
                         })
                     });
                     this._handles.push(fromAssociationHandle);
@@ -377,7 +452,13 @@ define([
                         guid: this._contextObj.getGuid(),
                         attr: this._toReference,
                         callback: dojoLang.hitch(this, function(guid, attr, attrValue) {
-                            this._updateRendering();
+                            var options = {};
+                            var to = this._valueGuids.indexOf(this._contextObj.get(this._toReference));
+                            if( to >= 0 ){
+                                options.to = to;
+                            }
+
+                            this._slider.update(options);
                         })
                     });
                     this._handles.push(toAssociationHandle);
