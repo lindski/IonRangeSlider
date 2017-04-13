@@ -2,7 +2,8 @@
 <package xmlns="http://www.mendix.com/package/1.0/">
     <clientModule name="IonRangeSlider" version="1.0.0" xmlns="http://www.mendix.com/clientModule/1.0/">
         <widgetFiles>
-            <widgetFile path="IonRangeSlider/IonRangeSlider.xml" />
+            <widgetFile path="IonRangeSlider/ContextObjectIonRangeSlider.xml" />
+            <widgetFile path="IonRangeSlider/AssociatedObjectIonRangeSlider.xml" />
         </widgetFiles>
         <files>
             <file path="IonRangeSlider/widget/" />

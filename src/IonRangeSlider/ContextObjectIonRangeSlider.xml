@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="IonRangeSlider.widget.ContextObjectIonRangeSlider" needsEntityContext="true" xmlns="http://www.mendix.com/widget/1.0/">
+    <name>IonRangeSlider (Context Object)</name>
+    <description>The description of this widget.</description>
+
+    <icon>iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAMAAABEpIrGAAAAn1BMVEUAAADAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSvAOSsRfVuXAAAANHRSTlMAAQIDBAUGCAoNDhAUFRcYGhwfICEiJENNTlFWV2RvfoCFkp2lsrfAx9PX2tzi6+/x8/n7foadlwAAAL5JREFUOMu9ktcSwiAQRQl2xNiw9xp7Qf7/24RkRYcSfXBy3mDPDLvLRegn2heh2GCfMBcJDUeNSSoLEJrMJETqfqIFYbL9LlBJSQvUhCSNzECo+6YId0fFMkDZgNdnRVT2CQw67kN/JrUuCEMiT1VkreamhZXeZKpgfU9LCzT+LJsOCAPfFLkorp8IyprpQz3Mx756AK3fnaGVFEHgeVdoP9LImSu0qQKEs/ASsDO07yav3jFHBxXbfe//C3wCYQtInkSiJ3cAAAAASUVORK5CYII=</icon>
+
+    <properties>
+        <property key="sliderType" type="enumeration" defaultValue="single">
+            <caption>Slider Type</caption>
+            <category>Data Source</category>
+            <description>Type of slider</description>
+            <enumerationValues>
+                <enumerationValue key="single">Single</enumerationValue>
+                <enumerationValue key="double">Double</enumerationValue>
+            </enumerationValues>
+        </property>
+        <property key="from" type="attribute" required="true">
+            <caption>From</caption>
+            <category>Data Source</category>
+            <description>Attribute holding the value for the left handle (or for single handle)</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="to" type="attribute" required="false">
+            <caption>To</caption>
+            <category>Data Source</category>
+            <description>Attribute holding the value for the right handle</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="minDefault" type="integer" required="true" defaultValue="10">
+            <caption>Min (Default)</caption>
+            <category>Data Source</category>
+            <description>Default slider minimum value</description>
+        </property>
+        <property key="min" type="attribute" required="false">
+            <caption>Min</caption>
+            <category>Data Source</category>
+            <description>Slider minimum value from an attribute</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="maxDefault" type="integer" required="true" defaultValue="100">
+            <caption>Max (Default)</caption>
+            <category>Data Source</category>
+            <description>Default slider maximum value</description>
+        </property>
+        <property key="max" type="attribute" required="false">
+            <caption>Max</caption>
+            <category>Data Source</category>
+            <description>Slider maximum value from an attribute</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="stepDefault" type="integer" required="true" defaultValue="1">
+            <caption>Step (Default)</caption>
+            <category>Data Source</category>
+            <description>Default slider step.</description>
+        </property>
+        <property key="step" type="attribute" required="false">
+            <caption>Step</caption>
+            <category>Data Source</category>
+            <description>Slider step</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="applyFromMovementLimit" type="boolean" defaultValue="false">
+            <caption>Limit From Movement</caption>
+            <category>Movement Limits (From)</category>
+            <description>If true, allows the From handle's movement to be limited</description>
+        </property>
+        <property key="fromMinimumDefault" type="integer" required="true" defaultValue="0">
+            <caption>From Minimum (Default)</caption>
+            <category>Movement Limits (From)</category>
+            <description>If Limit From Movement is true, sets the minimum allowed value for the From handle.</description>
+        </property>
+        <property key="fromMinimum" type="attribute" required="false">
+            <caption>From Minimum</caption>
+            <category>Movement Limits (From)</category>
+            <description>If Limit From Movement is true, sets the minimum allowed value for the From handle based on an attribute.</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="fromMaximumDefault" type="integer" required="true" defaultValue="0">
+            <caption>From Maximum (Default)</caption>
+            <category>Movement Limits (From)</category>
+            <description>If Limit From Movement is true, sets the maximum allowed value for the From handle.</description>
+        </property>
+        <property key="fromMaximum" type="attribute" required="false">
+            <caption>From Maximum</caption>
+            <category>Movement Limits (From)</category>
+            <description>If Limit From Movement is true, sets the maximum allowed value for the From handle based on an attribute.</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="fromShadow" type="boolean" defaultValue="false">
+            <caption>Show From Shadow</caption>
+            <category>Movement Limits (From)</category>
+            <description>If true, highlights the allowed zone based for the From handle </description>
+        </property>
+        <property key="applyToMovementLimit" type="boolean" defaultValue="false">
+            <caption>Limit To Movement</caption>
+            <category>Movement Limits (To)</category>
+            <description>If true, allows the To handle's movement to be limited</description>
+        </property>
+        <property key="toMinimumDefault" type="integer" required="true" defaultValue="0">
+            <caption>To Minimum (Default)</caption>
+            <category>Movement Limits (To)</category>
+            <description>If Limit From Movement is true, sets the minimum allowed value for the To handle.</description>
+        </property>
+        <property key="toMinimum" type="attribute" required="false">
+            <caption>To Minimum</caption>
+            <category>Movement Limits (To)</category>
+            <description>If Limit From Movement is true, sets the minimum allowed value for the To handle based on an attribute.</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="toMaximumDefault" type="integer" required="true" defaultValue="0">
+            <caption>To Maximum (Default)</caption>
+            <category>Movement Limits (To)</category>
+            <description>If Limit From Movement is true, sets the maximum allowed value for the To handle.</description>
+        </property>
+        <property key="toMaximum" type="attribute" required="false">
+            <caption>To Maximum</caption>
+            <category>Movement Limits (To)</category>
+            <description>If Limit From Movement is true, sets the maximum allowed value for the To handle based on an attribute.</description>
+            <attributeTypes>
+                <attributeType name="Integer"/>
+            </attributeTypes>
+        </property>
+        <property key="toShadow" type="boolean" defaultValue="false">
+            <caption>Show To Shadow</caption>
+            <category>Movement Limits (To)</category>
+            <description>If true, highlights the allowed zone based for the To handle </description>
+        </property>
+        <property key="showGrid" type="boolean" required="true" defaultValue="true">
+            <caption>Show Grid</caption>
+            <category>Display</category>
+            <description>Enables grid of values.</description>
+        </property>
+        <property key="prefix" type="translatableString" required="false" multiline="false">
+            <caption>Prefix</caption>
+            <category>Display</category>
+            <description>Set prefix for values. Will be set up right before the number</description>
+        </property>
+        <property key="postfix" type="translatableString" required="false" multiline="false">
+            <caption>Postfix</caption>
+            <category>Display</category>
+            <description>Set postfix for values. Will be set up after before the number</description>
+        </property>
+        <property key="disabled" type="boolean" defaultValue="false">
+            <caption>Disabled</caption>
+            <category>Display</category>
+            <description>If true, makes the slider disabled.</description>
+        </property>
+        <property key="disabledViaAttribute" type="attribute" required="false">
+            <caption>Disabled via attribute</caption>
+            <category>Display</category>
+            <description>Optional, set's slider disabled property based on attribute (true = disabled, false = enabled)</description>
+            <attributeTypes>
+                <attributeType name="Boolean"/>
+            </attributeTypes>
+        </property>
+        <property key="visible" type="boolean" defaultValue="true">
+            <caption>Visible</caption>
+            <category>Display</category>
+            <description>If true, makes the slider visible.</description>
+        </property>
+        <property key="visibleViaAttribute" type="attribute" required="false">
+            <caption>Visible via attribute</caption>
+            <category>Display</category>
+            <description>Optional, set's slider visibility property based on attribute (true = visible, false = hidden)</description>
+            <attributeTypes>
+                <attributeType name="Boolean"/>
+            </attributeTypes>
+        </property>
+    </properties>
+</widget>
