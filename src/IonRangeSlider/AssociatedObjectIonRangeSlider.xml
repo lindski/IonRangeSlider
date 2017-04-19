@@ -162,7 +162,7 @@
         <property key="postfix" type="translatableString" required="false" multiline="false">
             <caption>Postfix</caption>
             <category>Display</category>
-            <description>Set postfix for values. Will be set up after before the number</description>
+            <description>Set postfix for values. Will be set up after the number</description>
         </property>
         <property key="disabled" type="boolean" defaultValue="false">
             <caption>Disabled</caption>
