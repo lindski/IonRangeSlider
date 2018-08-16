@@ -167,7 +167,7 @@ define([
                 this._loadSliderValues(callback);
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
-                mendix.lang.nullExec(callback);
+                this._executeCallback(callback, "_updateRendering");
             } 
         },
 
@@ -285,7 +285,7 @@ define([
                 this._slider.update(options);
             }
             
-            mendix.lang.nullExec(callback);
+            this._executeCallback(callback, "_processSliderValues");
         },    
 
         _execMf: function (guid, mf, cb) {
@@ -362,6 +362,35 @@ define([
                 this._handles.push(toAssociationHandle);
             }
         },
+
+        _execMf: function (guid, mf, cb) {
+            if (guid && mf) {
+                mx.data.action({
+                    params: {
+                        applyto: 'selection',
+                        actionname: mf,
+                        guids: [guid]
+                    },
+                    callback: function (objs) {
+                        if (cb) {
+                            cb(objs);
+                        }
+                    },
+                    error: function (e) {
+                        logger.error('Error running Microflow: ' + e);
+                    }
+                }, this);
+            }
+
+        },
+
+        // Shorthand for executing a callback, adds logging to your inspector
+        _executeCallback: function (cb, from) {
+            logger.debug(this.id + "._executeCallback" + (from ? " from " + from : ""));
+            if (cb && typeof cb === "function") {
+                cb();
+            }
+        }
     });
 });
 

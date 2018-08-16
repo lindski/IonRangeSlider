@@ -4,9 +4,9 @@
     ========================
 
     @file      : IonRangeSlider.js
-    @version   : 1.0.0
+    @version   : 2.0.0
     @author    : Iain Lindsay
-    @date      : 2017-04-12
+    @date      : 2017-08-16
     @copyright : AuraQ Limited 2016
     @license   : Apache v2
 
@@ -146,37 +146,42 @@ define([
             } else {
                 dojoStyle.set(this.domNode, "display", "none");
             }
-
-            mendix.lang.nullExec(callback);
+            
+            this._executeCallback(callback, "_updateRendering");
         },
 
         _getSliderOptions : function(obj){
             var options = this._getCommonSliderOptions(obj);
-            options.min = this.min ? obj.get(this.min) : this.minDefault;
-            options.max = this.max ? obj.get(this.max) : this.maxDefault;
+            options.min = this.min ? parseInt(obj.get(this.min)) : this.minDefault;
+            options.max = this.max ? parseInt(obj.get(this.max)) : this.maxDefault;
             if( this.from ){
-                options.from = obj.get(this.from);
+                options.from = parseInt(obj.get(this.from));
             }
 
             if( this.sliderType === "double"){
-                options.to = obj.get(this.to);
+                options.to = parseInt(obj.get(this.to));
             }
             
-            options.step = this.step ? obj.get(this.step) : this.stepDefault;  
+            options.step = this.step ? parseInt(obj.get(this.step)) : this.stepDefault;  
 
             var self = this;
             options.onFinish = function (data) {
-                var currentFrom = obj.get(self.from);
-                if( data.from != currentFrom){
-                    obj.set(self.from, data.from);
+                var currentFrom = parseInt(obj.get(self.from));
+                var dataFrom = parseInt(data.from);
+                if( dataFrom != currentFrom){
+                    obj.set(self.from, dataFrom);
                 }
-                
                 if( self.sliderType === "double"){
-                    var currentTo = obj.get(self.to);
-                    if( data.to != currentTo){
-                        obj.set(self.to, data.to);
+                    var currentTo = parseInt(obj.get(self.to));
+                    var dataTo = parseInt(data.to);
+                    if( dataTo != currentTo){
+                        obj.set(self.to, dataTo);
                     }
-                }                
+                }  
+                
+                if(self.onValueChangeMicroflow){
+                    self._execMf(self._contextObj.getGuid(), self.onValueChangeMicroflow);
+                }
             }
             
             return options;
@@ -196,14 +201,14 @@ define([
             }          
 
             if( this.applyFromMovementLimit ){
-                options.from_min = this.fromMinimum ? obj.get(this.fromMinimum) : this.fromMinimumDefault;
-                options.from_max = this.fromMaximum ? obj.get(this.fromMaximum) : this.fromMaximumDefault;
+                options.from_min = this.fromMinimum ? parseInt(obj.get(this.fromMinimum)) : this.fromMinimumDefault;
+                options.from_max = this.fromMaximum ? parseInt(obj.get(this.fromMaximum)) : this.fromMaximumDefault;
                 options.from_shadow = this.fromShadow;
             }
 
             if( this.applyToMovementLimit ){
-                options.to_min = this.toMinimum ? obj.get(this.toMinimum) : this.toMinimumDefault;
-                options.to_max = this.toMaximum ? obj.get(this.toMaximum) : this.toMaximumDefault;
+                options.to_min = this.toMinimum ? parseInt(obj.get(this.toMinimum)) : this.toMinimumDefault;
+                options.to_max = this.toMaximum ? parseInt(obj.get(this.toMaximum)) : this.toMaximumDefault;
                 options.to_shadow = this.toShadow;
             }
 
@@ -222,6 +227,8 @@ define([
                     options.disable = false;
                 }
             }
+
+            options.prettify_enabled = this.prettifyNumbers;
             
             return options;
         },
@@ -253,7 +260,7 @@ define([
                     attr: this.from,
                     callback: dojoLang.hitch(this, function(guid, attr, attrValue) {
                         var options = {};
-                        options.from = this._contextObj.get(this.from);
+                        options.from = parseInt(this._contextObj.get(this.from));
                         this._slider.update(options);
                     })
                 });
@@ -264,13 +271,42 @@ define([
                     attr: this.to,
                     callback: dojoLang.hitch(this, function(guid, attr, attrValue) {
                         var options = {};
-                        options.to = this._contextObj.get(this.to);
+                        options.to = parseInt(this._contextObj.get(this.to));
                         this._slider.update(options);
                     })
                 });
                 this._handles.push(toAttributeHandle);
             }
         },
+
+        _execMf: function (guid, mf, cb) {
+            if (guid && mf) {
+                mx.data.action({
+                    params: {
+                        applyto: 'selection',
+                        actionname: mf,
+                        guids: [guid]
+                    },
+                    callback: function (objs) {
+                        if (cb) {
+                            cb(objs);
+                        }
+                    },
+                    error: function (e) {
+                        logger.error('Error running Microflow: ' + e);
+                    }
+                }, this);
+            }
+
+        },
+
+        // Shorthand for executing a callback, adds logging to your inspector
+        _executeCallback: function (cb, from) {
+            logger.debug(this.id + "._executeCallback" + (from ? " from " + from : ""));
+            if (cb && typeof cb === "function") {
+                cb();
+            }
+        }
     });
 });
 
