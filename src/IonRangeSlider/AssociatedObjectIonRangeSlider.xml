@@ -190,5 +190,11 @@
                 <attributeType name="Boolean"/>
             </attributeTypes>
         </property>
+        <property key="onValueChangeMicroflow" type="microflow" required="false">
+            <caption>On Value Change Microflow</caption>
+            <category>Events</category>
+            <description>Run this microflow when a slider value changes</description>
+            <returnType type="Void"/>
+        </property>
     </properties>
 </widget>

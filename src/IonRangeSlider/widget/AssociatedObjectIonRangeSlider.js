@@ -196,7 +196,11 @@ define([
                     if( data.to != currentTo){
                         obj.addReference(self._toReference,self._valueGuids[data.to]);
                     }
-                }             
+                }      
+                
+                if(self.onValueChangeMicroflow){
+                    self._execMf(self._contextObj.getGuid(), self.onValueChangeMicroflow);
+                }       
             }
             
             return options;
