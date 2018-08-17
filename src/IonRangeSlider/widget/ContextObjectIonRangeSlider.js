@@ -4,9 +4,9 @@
     ========================
 
     @file      : IonRangeSlider.js
-    @version   : 2.0.0
+    @version   : 2.1.0
     @author    : Iain Lindsay
-    @date      : 2017-08-16
+    @date      : 2017-08-17
     @copyright : AuraQ Limited 2016
     @license   : Apache v2
 
@@ -180,7 +180,8 @@ define([
                 }  
                 
                 if(self.onValueChangeMicroflow){
-                    self._execMf(self._contextObj.getGuid(), self.onValueChangeMicroflow);
+                    self._execMf(self._contextObj.getGuid(), self.onValueChangeMicroflow, 
+                        self.onValueChangeMicroflowShowProgress, self.onValueChangeMicroflowProgressMessage);
                 }
             }
             
@@ -279,9 +280,10 @@ define([
             }
         },
 
-        _execMf: function (guid, mf, cb) {
-            if (guid && mf) {
-                mx.data.action({
+        _execMf: function (guid, mf, cb, showProgress, message) {
+            var self = this;
+            if (guid && mf) {                
+                var options = {
                     params: {
                         applyto: 'selection',
                         actionname: mf,
@@ -295,9 +297,15 @@ define([
                     error: function (e) {
                         logger.error('Error running Microflow: ' + e);
                     }
-                }, this);
-            }
+                }
 
+                if(showProgress){                    
+                    options.progress = "modal";
+                    options.progressMsg = message;
+                }
+
+                mx.ui.action(mf,options, this);
+            }
         },
 
         // Shorthand for executing a callback, adds logging to your inspector

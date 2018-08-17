@@ -4,9 +4,9 @@
     ========================
 
     @file      : IonRangeSlider.js
-    @version   : 1.0.0
+    @version   : 2.1.0
     @author    : Iain Lindsay
-    @date      : 2017-04-12
+    @date      : 2017-08-17
     @copyright : AuraQ Limited 2016
     @license   : Apache v2
 
@@ -199,7 +199,8 @@ define([
                 }      
                 
                 if(self.onValueChangeMicroflow){
-                    self._execMf(self._contextObj.getGuid(), self.onValueChangeMicroflow);
+                    self._execMf(self._contextObj.getGuid(), self.onValueChangeMicroflow, 
+                        self.onValueChangeMicroflowShowProgress, self.onValueChangeMicroflowProgressMessage);
                 }       
             }
             
@@ -292,9 +293,10 @@ define([
             this._executeCallback(callback, "_processSliderValues");
         },    
 
-        _execMf: function (guid, mf, cb) {
-            if (guid && mf) {
-                mx.data.action({
+        _execMf: function (guid, mf, cb, showProgress, message) {
+            var self = this;
+            if (guid && mf) {                
+                var options = {
                     params: {
                         applyto: 'selection',
                         actionname: mf,
@@ -302,15 +304,21 @@ define([
                     },
                     callback: function (objs) {
                         if (cb) {
-                            cb(objs); 
+                            cb(objs);
                         }
                     },
                     error: function (e) {
                         logger.error('Error running Microflow: ' + e);
                     }
-                }, this);
-            }
+                }
 
+                if(showProgress){                    
+                    options.progress = "modal";
+                    options.progressMsg = message;
+                }
+
+                mx.ui.action(mf,options, this);
+            }
         },
 
         // Reset subscriptions.
@@ -365,27 +373,6 @@ define([
                 });
                 this._handles.push(toAssociationHandle);
             }
-        },
-
-        _execMf: function (guid, mf, cb) {
-            if (guid && mf) {
-                mx.data.action({
-                    params: {
-                        applyto: 'selection',
-                        actionname: mf,
-                        guids: [guid]
-                    },
-                    callback: function (objs) {
-                        if (cb) {
-                            cb(objs);
-                        }
-                    },
-                    error: function (e) {
-                        logger.error('Error running Microflow: ' + e);
-                    }
-                }, this);
-            }
-
         },
 
         // Shorthand for executing a callback, adds logging to your inspector

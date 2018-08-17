@@ -196,5 +196,15 @@
             <description>Run this microflow when a slider value changes</description>
             <returnType type="Void"/>
         </property>
+        <property key="onValueChangeMicroflowShowProgress" type="boolean" defaultValue="false">
+            <caption>Show Progress Bar</caption>
+            <category>Events</category>
+            <description>Controls whether a progress bar should be displayed when executing the on value change microflow</description>
+        </property>
+        <property key="onValueChangeMicroflowProgressMessage" type="string" required="false">
+            <caption>Progress Message</caption>
+            <category>Events</category>
+            <description>The progress message to show when executing the on value change microflow</description>
+        </property>
     </properties>
 </widget>
